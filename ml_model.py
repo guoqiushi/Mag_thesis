@@ -2,6 +2,13 @@ from phy_model import fileObject
 import pandas as pd
 import os
 import numpy as np
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
 
 class ml_fileObject:
 
@@ -138,5 +145,78 @@ class ml_fileObject:
 
         return T1_start, T2_start, T3_start
 
-    def get_features(self):
-        t1,_,_ = self.get_T_index(8000000)
+    def get_ml_features(self):
+        df_mag_merge = self.merge_all()
+        t1,t2,t3 = self.get_T_index(8000000)
+        period_start = []
+        for item in t1:
+            period_start.append(item)
+        for item in t2:
+            period_start.append(item - 40)
+        for item in t3:
+            period_start.append(item - 80)
+        T1_start = []
+        sorted_begin_list = sorted(period_start)
+        for i in range(1, len(period_start)):
+            if sorted_begin_list[i] - sorted_begin_list[i - 1] > 2:
+                T1_start.append(sorted_begin_list[i])
+        feature_list = []
+        feature_index = []
+        for item in T1_start:
+            feature_list.append(
+                (item, item + 9, item + 18, item + 40, item + 49, item + 60, item + 80, item + 92, item + 102))
+            feature_index.extend(
+                (item, item + 9, item + 18, item + 40, item + 49, item + 60, item + 80, item + 92, item + 102))
+        x_feature = []
+        y_feature = []
+
+        for item in feature_list:
+            x_feature.append([
+                max(df_mag_merge.iloc[item[0]:item[0] + 5, 4]),
+                max(df_mag_merge.iloc[item[1]:item[1] + 5, 4]),
+                max(df_mag_merge.iloc[item[2]:item[2] + 5, 4]),
+                max(df_mag_merge.iloc[item[3]:item[3] + 5, 4]),
+                max(df_mag_merge.iloc[item[4]:item[4] + 5, 4]),
+                max(df_mag_merge.iloc[item[5]:item[5] + 5, 4]),
+                max(df_mag_merge.iloc[item[6]:item[6] + 5, 4]),
+                max(df_mag_merge.iloc[item[7]:item[7] + 5, 4]),
+                max(df_mag_merge.iloc[item[8]:item[8] + 5, 4]),
+
+            ])
+            y_feature.append(
+                [df_mag_merge.iloc[item[0], 5], df_mag_merge.iloc[item[0], 6], df_mag_merge.iloc[item[0], 7]])
+        return x_feature,y_feature
+
+
+class ml_model:
+
+    def __init__(self,x_feature,y_feature):
+
+        self.x_feature = x_feature
+        self.y_feature = y_feature
+
+    def Random_forest(self,n_estimators=100,max_depth=15):
+        rf_reg = MultiOutputRegressor(RandomForestRegressor(n_estimators=n_estimators,max_depth=max_depth,random_state=0))
+        rf_reg.fit(self.x_feature, self.y_feature)
+        return rf_reg
+
+    def KNeighbors(self,neighors):
+        rf_knn = MultiOutputRegressor(KNeighborsRegressor(neighors=neighors))
+        rf_knn.fit(self.x_feature,self.y_feature)
+        return rf_knn
+
+    def Svm(self,kernel='rbf',gamma=0.1,epsilon=0.1):
+        rf_svm = MultiOutputRegressor(SVR(kernel=kernel,gamma=gamma,epsilon=epsilon))
+        rf_svm.fit(self.x_feature,self.y_feature)
+        return rf_svm
+
+
+
+
+if __name__ == '__main__':
+    root = '/Users/guoqiushi/Documents/thesis/indoor_final/'
+    file_1  = ml_fileObject(root,1)
+    x_feature,y_feature = file_1.get_ml_features()
+    svm_model = ml_model(x_feature,y_feature)
+    print(svm_model.Svm())
+

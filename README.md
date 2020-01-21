@@ -26,7 +26,9 @@ Dead Reckoning is a method to calculate the current position based on previously
 ### Model 
 * Physical model
 3 regression model (magnitude vs distance) are shown as follow:
-![](./figure/1_reg.png)![](./figure/2_reg.png)![](./figure/3_reg.png)
+![](./figure/1_reg.png)
+![](./figure/2_reg.png)
+![](./figure/3_reg.png)
 * Machine Learning model
    
   

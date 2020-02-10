@@ -53,7 +53,7 @@ Several models could be used in predicting the coordinates in 3D space, in this 
 ### 3. Outlier Detection
 Due to the **robustness** problem, sometimes the returned results from machine-learning based model are shifted  away from the ground truth. Outlier detection was used to solve it. Taking a time period as a batch (1.2s, for instance), which should contain 10 predictions, and using outlier detection to filter out these inaccurate ones. The common used methods are:
 
-- Isolation Forest
+- **Isolation Forest**
 - One-class SVM
 - Local outlier Factor
 - Robust Covariance
@@ -65,7 +65,7 @@ Kalman Filter is used to fuse the result from Dead Reckoning and the predictions
 ###  5.Data fusion
 ![](./figure/1.jpeg)
 
-## Experiment Result
+## Experiment Results
 Single point prediction:
 
 | model | accuracy (m) | std | time (s) |
@@ -77,8 +77,11 @@ Single point prediction:
 | Ada Boost | 0.711 | 0.334 | 0.200 |
 | Physical Model| 0.524 | 0.380 | 0.820 |
 
-Sequence Prediction:
-![](./figure/sequence.png)
+Sequence Prediction (200 points):
+
+|no outlier detection | with outlier detection| sequence prediction (1s)|
+| :---:| :---: | :---: |
+| ![](./figure/sequence_no_filter.png)|![](./figure/sequence_filter.png)|![](./figure/sequence_period.png)|
 ## Code
 
 | file | description |
@@ -89,10 +92,12 @@ Sequence Prediction:
 | Kalman_filter.py| |
 | [ml_performance.ipynb](./ml_performance.ipynb) | notebook on machine learning performance codes  |
 | [model](./model)| regression model and several ml models|
-
+| [plot_thesis.ipynb](./plot_thesis.ipynb)|notebook for plotting figures|
 
  
 ## Reference
 
 * [Integrated WiFi/PDR/Smartphone Using an Unscented Kalman Filter Algorithm for 3D Indoor Localization](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4610469/)
 * [A Robust Indoor Positioning System based on Encoded Magnetic Field and Low-cost IMU](https://ieeexplore.ieee.org/abstract/document/7479703)
+* [Isolation Forest](https://cs.nju.edu.cn/zhouzh/zhouzh.files/publication/icdm08b.pdf)
+* [Fusion of inertial and magnetic sensors for 3D position and orientation estimation](https://ieeexplore.ieee.org/document/7591448)
